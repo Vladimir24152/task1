@@ -1,106 +1,119 @@
 package jm.task.core.jdbc.dao;
-
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.JdbcConnectionUtil;
-
+import jm.task.core.jdbc.util.RequestConstants;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class UserDaoJDBCImpl implements UserDao {
     public UserDaoJDBCImpl() {
     }
 
-    private void makeARequest(String sql) {
+    public void consumerMethod(Consumer<PreparedStatement> consumer, String sql) {
         try (Connection connection = JdbcConnectionUtil.open();
              PreparedStatement statement = connection.prepareStatement(sql)
         ) {
-            statement.execute();
+            consumer.accept(statement);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
+    public <R> R functionMethod(Function<PreparedStatement, R> function, String sql) {
+        try (Connection connection = JdbcConnectionUtil.open();
+             PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+            R type = function.apply(statement);
+            return type;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public void createUsersTable() {
-        String sql = """
-                CREATE TABLE IF NOT EXISTS users(
-                    id SERIAL PRIMARY KEY,
-                    name varchar(255) NOT NULL,
-                    lastname varchar(255) NOT NULL,
-                    age SMALLINT NOT NULL
-                )
-        """;
-        makeARequest(sql);
+        consumerMethod(statement -> {
+            try {
+                statement.execute();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }, RequestConstants.CREATE_USERS_TABLE);
     }
 
+    @Override
     public void dropUsersTable() {
-        String sql = """
-                DROP TABLE IF EXISTS users;
-        """;
-        makeARequest(sql);
+        consumerMethod(statement -> {
+            try {
+                statement.execute();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }, RequestConstants.DROP_USERS_TABLE);
     }
 
+    @Override
     public void saveUser(String name, String lastName, byte age) {
-        String sql = """
-            INSERT INTO users(name, lastname, age)
-            VALUES (?, ?, ?);
-        """;
-        try (Connection connection = JdbcConnectionUtil.open();
-             PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            statement.setString(1, name);
-            statement.setString(2, lastName);
-            statement.setByte(3, age);
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        consumerMethod(statement -> {
+            try {
+                statement.setString(1, name);
+                statement.setString(2, lastName);
+                statement.setByte(3, age);
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }, RequestConstants.SAVE_USER);
+
         System.out.println("User с именем – " + name + " добавлен в базу данных");
     }
 
+    @Override
     public void removeUserById(long id) {
-        String sql = """
-                DELETE FROM users WHERE id = ?;
-                """;
-        try (Connection connection = JdbcConnectionUtil.open();
-             PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            statement.setLong(1, id);
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    public List<User> getAllUsers() {
-        String sql = """
-                SELECT * FROM users;
-                """;
-
-        List<User> users = new ArrayList<>();
-
-        try (Connection connection = JdbcConnectionUtil.open();
-             PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()){
-                User user = new User(resultSet.getString("name"), resultSet.getString("lastname"), resultSet.getByte("age"));
-                user.setId(resultSet.getLong("id"));
-                users.add(user);
+        consumerMethod(statement -> {
+            try {
+                statement.setLong(1, id);
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return users;
+        }, RequestConstants.REMOVE_USER_BY_ID);
     }
 
-    public void cleanUsersTable() {
-        String sql = """
-                DELETE FROM users;
-                """;
-        makeARequest(sql);
+    @Override
+    public List<User> getAllUsers() {
+        return functionMethod(statement -> {
+            try {
+                List<User> users = new ArrayList<>();
+                ResultSet resultSet = statement.executeQuery();
+                if (resultSet != null) {
+                    while (resultSet.next()){
+                        User user = new User(resultSet.getString("name"), resultSet.getString("lastname"), resultSet.getByte("age"));
+                        user.setId(resultSet.getLong("id"));
+                        users.add(user);
+                    }
+                }
+                return users;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }, RequestConstants.GET_ALL_USERS);
     }
+
+    @Override
+    public void cleanUsersTable() {
+        consumerMethod(statement -> {
+            try {
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }, RequestConstants.CLEAN_USERS_TABLE);    }
 }

@@ -1,5 +1,5 @@
 package jm.task.core.jdbc.util;
-
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -15,14 +15,18 @@ public final class PropertiesUtil {
     }
 
     private static void loadProperties() {
-        try (var inputStream = PropertiesUtil.class.getClassLoader().getResourceAsStream("application.properties")){
-            PROPERTIES.load(inputStream);
+
+        try {
+            PROPERTIES.load(new FileReader("C:\\Users\\Asus\\IdeaProjects\\task1\\Task-1\\src\\main\\resources\\application.properties"));
+            if (PROPERTIES.isEmpty()){
+                throw new IllegalStateException("Указанный properties файл пустой");
+            }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Отсутствует указанный properties файл");
         }
     }
 
-    public static String get(String key) {
+    public static String getProperty(String key) {
         return PROPERTIES.getProperty(key);
     }
 }

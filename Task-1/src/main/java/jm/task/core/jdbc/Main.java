@@ -1,19 +1,22 @@
 package jm.task.core.jdbc;
-
 import jm.task.core.jdbc.dao.UserDaoHibernateImpl;
 import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
-import jm.task.core.jdbc.model.User;
+import jm.task.core.jdbc.service.UserService;
 import jm.task.core.jdbc.service.UserServiceImpl;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-
-import java.sql.Driver;
-import java.util.List;
+import jm.task.core.jdbc.util.PropertiesUtil;
 
 public class Main {
     public static void main(String[] args) {
-        UserServiceImpl userService = new UserServiceImpl(new UserDaoJDBCImpl());
+        UserService userService;
+
+        if (PropertiesUtil.getProperty("dao_realization").equals("jdbc")) {
+            userService = new UserServiceImpl(new UserDaoJDBCImpl());
+        }else if (PropertiesUtil.getProperty("dao_realization").equals("hibernate")) {
+            userService = new UserServiceImpl(new UserDaoHibernateImpl());
+        }else {
+            throw new IllegalArgumentException("Указана неверная реализация UserDao");
+        }
+
         userService.createUsersTable();
         userService.saveUser("Name1","Lastname1", (byte) 20);
         userService.saveUser("Name2","Lastname2", (byte) 21);

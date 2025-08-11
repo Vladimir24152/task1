@@ -7,11 +7,6 @@
     <property name="connection.url"/>
     <property name="connection.driver_class"/>
     <property name="hibernate.hbm2ddl.auto">update</property>
-<!--     <property name="connection.username"/> -->
-    <!-- <property name="connection.password"/> -->
-
-    <!-- DB schema will be updated if needed -->
-    <!-- <property name="hibernate.hbm2ddl.auto">update</property> -->
     <property name="hibernate.current_session_context_class">thread</property>
     <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
     <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/postgres</property>

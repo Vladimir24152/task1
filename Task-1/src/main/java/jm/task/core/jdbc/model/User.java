@@ -1,5 +1,4 @@
 package jm.task.core.jdbc.model;
-
 import javax.persistence.*;
 
 @Entity
@@ -18,9 +17,7 @@ public class User {
     @Column
     private Byte age;
 
-    public User() {
-
-    }
+    public User() {}
 
     public User(String name, String lastName, Byte age) {
         this.name = name;
@@ -63,8 +60,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-               "id=" + id +
-               ", name='" + name + '\'' +
+               "name='" + name + '\'' +
                ", lastName='" + lastName + '\'' +
                ", age=" + age +
                '}';
