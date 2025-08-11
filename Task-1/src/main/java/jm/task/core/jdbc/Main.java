@@ -1,4 +1,5 @@
 package jm.task.core.jdbc;
+import jm.task.core.jdbc.dao.UserDao;
 import jm.task.core.jdbc.dao.UserDaoHibernateImpl;
 import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
 import jm.task.core.jdbc.service.UserService;
@@ -7,15 +8,7 @@ import jm.task.core.jdbc.util.PropertiesUtil;
 
 public class Main {
     public static void main(String[] args) {
-        UserService userService;
-
-        if (PropertiesUtil.getProperty("dao_realization").equals("jdbc")) {
-            userService = new UserServiceImpl(new UserDaoJDBCImpl());
-        }else if (PropertiesUtil.getProperty("dao_realization").equals("hibernate")) {
-            userService = new UserServiceImpl(new UserDaoHibernateImpl());
-        }else {
-            throw new IllegalArgumentException("Указана неверная реализация UserDao");
-        }
+        UserService userService = new UserServiceImpl(choosingAnImplementation());
 
         userService.createUsersTable();
         userService.saveUser("Name1","Lastname1", (byte) 20);
@@ -26,5 +19,15 @@ public class Main {
         userService.getAllUsers().stream().forEach(System.out::println);
         userService.cleanUsersTable();
         userService.dropUsersTable();
+    }
+
+    public static UserDao choosingAnImplementation() {
+        if (PropertiesUtil.getProperty("dao_realization").equals("jdbc")) {
+           return new UserDaoJDBCImpl();
+        }else if (PropertiesUtil.getProperty("dao_realization").equals("hibernate")) {
+            return new UserDaoHibernateImpl();
+        }else {
+            throw new IllegalArgumentException("Указана неверная реализация UserDao");
+        }
     }
 }

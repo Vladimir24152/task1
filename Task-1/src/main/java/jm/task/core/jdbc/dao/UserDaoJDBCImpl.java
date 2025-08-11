@@ -10,12 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 public class UserDaoJDBCImpl implements UserDao {
+    private static final Logger LOGGER = Logger.getLogger(UserDaoJDBCImpl.class.getName());
+
     public UserDaoJDBCImpl() {
     }
 
-    public void consumerMethod(Consumer<PreparedStatement> consumer, String sql) {
+    private void consumerMethod(Consumer<PreparedStatement> consumer, String sql) {
         try (Connection connection = JdbcConnectionUtil.open();
              PreparedStatement statement = connection.prepareStatement(sql)
         ) {
@@ -25,7 +28,7 @@ public class UserDaoJDBCImpl implements UserDao {
         }
     }
 
-    public <R> R functionMethod(Function<PreparedStatement, R> function, String sql) {
+    private <R> R functionMethod(Function<PreparedStatement, R> function, String sql) {
         try (Connection connection = JdbcConnectionUtil.open();
              PreparedStatement statement = connection.prepareStatement(sql)
         ) {
@@ -70,8 +73,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 throw new RuntimeException(e);
             }
         }, RequestConstants.SAVE_USER);
-
-        System.out.println("User с именем – " + name + " добавлен в базу данных");
+        LOGGER.info("User с именем – " + name + " добавлен в базу данных");
     }
 
     @Override

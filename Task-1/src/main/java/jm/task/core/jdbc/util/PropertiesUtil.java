@@ -17,7 +17,7 @@ public final class PropertiesUtil {
     private static void loadProperties() {
 
         try {
-            PROPERTIES.load(new FileReader("C:\\Users\\Asus\\IdeaProjects\\task1\\Task-1\\src\\main\\resources\\application.properties"));
+            PROPERTIES.load(new FileReader("src\\main\\resources\\application.properties"));
             if (PROPERTIES.isEmpty()){
                 throw new IllegalStateException("Указанный properties файл пустой");
             }

@@ -9,18 +9,19 @@ public class HibernateSessionFactoryUtil {
     private HibernateSessionFactoryUtil() {
     }
 
-    public static SessionFactory open() {
-        if (sessionFactory == null) {
-            try {
-                sessionFactory  = new Configuration()
-                        .configure("hibernate.cfg.xml")
-                        .addAnnotatedClass(User.class)
-                        .buildSessionFactory();
+    static {
+        try {
+            sessionFactory  = new Configuration()
+                    .configure("hibernate.cfg.xml")
+                    .addAnnotatedClass(User.class)
+                    .buildSessionFactory();
 
-            } catch (Exception e) {
-                System.out.println("Исключение!" + e);
-            }
+        } catch (Exception e) {
+            System.out.println("Исключение!" + e);
         }
+    }
+
+    public static SessionFactory open() {
         return sessionFactory;
     }
 
