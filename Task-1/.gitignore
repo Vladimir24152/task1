@@ -1,0 +1,7 @@
+# JetBrains IDE
+.idea/
+*.iml
+
+# Maven/Gradle
+target/
+build/
